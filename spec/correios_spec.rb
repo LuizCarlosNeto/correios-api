@@ -1,5 +1,6 @@
 $LOAD_PATH << File.expand_path(File.dirname(__FILE__) + "/../lib")
 
+require 'pacote'
 require "correios"
 require "encomenda"
 require "encomenda_status"
@@ -47,5 +48,26 @@ describe Encomenda do
     status.local.should eql("CEE MOEMA - SAO PAULO/SP")
     status.situacao.should eql("Entregue")
     status.detalhes.should be_nil
+  end
+  
+  it "deveria retornar o pacote com o valor de envio" do
+    pacote = Correios.sedex(:origem => '58701050',
+                            :destino => '58701020',
+                            :peso => 20,
+                            :opcionais => [:ar, :mao_propria, {:valor_declarado => 100.0}])
+                            
+    pacote.should_not be_nil
+    pacote.should be_instance_of(Pacote)
+    
+    pacote.origem.should eql("58701050")
+    pacote.destino.should eql("5870120")
+    pacote.peso.should eql(20)
+    pacote.should be_ar
+    pacote.should be_mao_propria
+    pacote.should be_valor_declarado
+    pacote.valor_declarado eql(100.0)
+    
+    pacote.total.should eql()
+    
   end
 end

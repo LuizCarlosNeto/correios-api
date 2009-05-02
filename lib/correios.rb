@@ -1,12 +1,14 @@
 require "rubygems"
+require "net/http"
 require "hpricot"
 require "open-uri"
-require "encomenda"
-require "encomenda_status"
+require "lib/encomenda"
+require "lib/encomenda_status"
 
 class Correios
   @url = "http://websro.correios.com.br"
   @url_rastreamento = "#{@url}/sro_bin/txect01$.QueryList?P_ITEMCODE=&P_LINGUA=001&P_TESTE=&P_TIPO=001&P_COD_UNI="
+  @url_calculo = "http://www.correios.com.br/encomendas/precos/calculo.cfm"
   
   def self.encomenda(numero, url=@url_rastreamento)
     html = Hpricot(open("#{url}#{numero}"))
@@ -21,6 +23,37 @@ class Correios
     end
     return encomenda
   end
+  
+  def self.sedex(caracts={}, url=@url_calculo)
+    url += "?resposta=&servico=41106"
+    url += "&cepOrigem=#{caracts[:origem]}"
+    url += "&cepDestino=#{caracts[:destino]}"
+    url += "&peso=#{caracts[:peso]}"
+    url += "&avisoRecebimento=S" if caracts[:opcionais].include? :ar 
+    url += "&MaoPropria=S" if caracts[:opcionais].include? :mao_propria
+    #url += "&valorDeclarado=S" if caracts[:opcionais].include
+
+    html = Hpricot(open(url))
+    script_javascript = html.at("script").inner_html
+  
+    tarifa = script_javascript.scan(/Tarifa=[0-9|.]+/).first.split("=")[1]
+    #TODO erro =
+    
+     
+  end
+  
+=begin
+  def self.pac(origem, destino, peso,)
+    servico = 41106 #PAC
+    cepOrigem = ''
+    cepDestino = ''
+    peso = 0.3
+    formato = 1 #caixapacote
+    comprimento =
+    largura
+    altura 
+  end
+=end
   
   private
   def self.parse_tr(encomenda, tr)
@@ -49,4 +82,5 @@ class Correios
     
     return status
   end
+  
 end

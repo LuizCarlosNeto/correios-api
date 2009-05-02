@@ -1,7 +1,8 @@
 require "rubygems"
-require "correios"
+require "lib/correios"
 
 # obtendo as informacoes de uma encomenda
+=begin
 encomenda = Correios.encomenda("ES446391025BR")
 
 puts "Encomenda: #{encomenda.numero}"
@@ -13,3 +14,6 @@ encomenda.status.each do |status|
   puts "  detalhes: #{status.detalhes}"
   puts
 end
+=end
+
+Correios.sedex()
